@@ -5,13 +5,59 @@ import os
 
 # Function to clear the terminal
 def clear():
-    command = 'cls'
+    command = 'cls' if os.name == 'nt' else 'clear'
     os.system(command)
 
+
 clear()
-timer = (0.0) # Seconds
-counter = 0 # Times sniped
-start = 1 # Gouda cheese _xX(**[-.meme.-]**)Xx_
+
+timer = 0.0      # Seconds
+counter = 0      # Times sniped
+start = 1        # Gouda cheese _xX(**[-.meme.-]**)Xx_
+paused = False   # Pause state
+
+
+# Toggle pause with S
+def toggle_pause():
+    global paused
+    paused = not paused
+
+
+keyboard.add_hotkey('s', toggle_pause, suppress=True)
+
+
+def wait_if_paused():
+    shown = False
+
+    while paused:
+        if not shown:
+            clear()
+            print(' ----------------------------------------------------------------------')
+            print('|                              PAUSED                                  |')
+            print('|                                                                      |')
+            print('|                     Press S to resume the script                     |')
+            print(' ----------------------------------------------------------------------')
+            shown = True
+
+        time.sleep(0.1)
+
+
+def smart_sleep(seconds):
+    remaining = seconds
+
+    while remaining > 0:
+        wait_if_paused()
+
+        step = min(0.05, remaining)
+        time.sleep(step)
+        remaining -= step
+
+
+def press_key(key):
+    wait_if_paused()
+    keyboard.press_and_release(key)
+
+
 # This will initiate the script
 if start == 1:
     while True:
@@ -29,60 +75,81 @@ if start == 1:
         print('|   4- It will start counting down from 5 once you start the script.   |')
         print('|      \'y\' = yes | \'n\' = no                                            |')
         print('|                                                                      |')
+        print('|      Press S to pause/resume while the script is running             |')
+        print('|                                                                      |')
         print('|      GOOD LUCK SNIPING!                                              |')
         print(' ----------------------------------------------------------------------')
-        # Asks if user wants to start sniping 
-        a = str(input('\nDo you want to start the script? y/n: '))
+
+        # Asks if user wants to start sniping
+        a = str(input('\nDo you want to start the script? y/n: ')).lower()
+
         # If user input equals 'n' it will close the program immediately
         if a == 'n':
             break
-        # If user input from -a- equals 'y' it will start counting down from 5 and will start sniping
+
+        # If user input equals 'y' it will start counting down from 5 and will start sniping
         elif a == 'y':
             clear()
-            for i in range(5, -1, -1):        
-                print('!!FOCUS WINDOW!!\nSniping in: ')        
-                print(str(i) + ' seconds')                
+
+            for i in range(5, -1, -1):
+                print('!!FOCUS WINDOW!!\nSniping in: ')
+                print(str(i) + ' seconds')
                 time.sleep(1)
                 clear()
+
             # The keyboard inputs and timings
             while True:
+                wait_if_paused()
+
                 counter = counter + 1
-                timer = timer + (2.33)
+                timer = timer + 2.33
                 minuteCounter = timer / 60
-                clear()                                
-                print('Sniped ' + str(counter) + ' Times')  
-                print('That\'s about ' + str(round(timer, 1)) + ' seconds (' + str(round(minuteCounter, 1)) + ' minutes)')                              
-                keyboard.press_and_release('Enter')
-                # *If you have lag, this one and all the ones with asterix' are probably the ones you want to prolongue (I recommend increments of +0.1)
-                time.sleep(0.25)
-                keyboard.press_and_release('Enter')
+
+                clear()
+                print('Sniped ' + str(counter) + ' Times')
+                print('That\'s about ' + str(round(timer, 1)) + ' seconds (' + str(round(minuteCounter, 1)) + ' minutes)')
+                print('Press S to pause/resume')
+
+                press_key('Enter')
+
+                # If you have lag, this one and all the ones with asterisks are probably
+                # the ones you want to prolong. Recommended increments: +0.1
+                smart_sleep(0.25)
+
+                press_key('Enter')
                 # *
-                time.sleep(0.78)
-                keyboard.press_and_release('y')                
-                time.sleep(0.25)      
-                keyboard.press_and_release('down')                
-                time.sleep(0.1)
-                keyboard.press_and_release('Enter')
+                smart_sleep(0.78)
+
+                press_key('y')
+                smart_sleep(0.25)
+
+                press_key('down')
+                smart_sleep(0.1)
+
+                press_key('Enter')
+
                 # *
-                time.sleep(0.2)    
-                keyboard.press_and_release('Enter')                   
-                keyboard.press_and_release('Escape') 
-                time.sleep(0.75) 
-                  
-        # If input from -a- doesn't equal 'y' or 'n' it will start a loop where the user will be asked to restart or exit the program                                    
-        else:            
+                smart_sleep(0.2)
+
+                press_key('Enter')
+                press_key('Escape')
+
+                smart_sleep(0.75)
+
+        # If input doesn't equal 'y' or 'n', ask the user to restart or exit
+        else:
             while True:
                 clear()
-                # Asks user for input to restart or exit the program
-                restart = input('You didn\'t press \'y\' to start the script, do you want to restart? y/n : ')
-                # If user input from -restart- 'y' it will go loop back to -a-
+
+                restart = input('You didn\'t press \'y\' to start the script, do you want to restart? y/n : ').lower()
+
                 if restart == 'y':
-                    break 
-                # If input from -restart- equals 'n' it will close the program
+                    break
+
                 elif restart == 'n':
-                    exit() 
-                # If the user does not input 'y' or 'n' it will loop back to -restart-          
+                    exit()
+
                 else:
                     continue
 
-clear()    
+clear()
